@@ -1,0 +1,115 @@
+[33mcommit 7fb82d98b326c589947707d7546368e54ff40cb1[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: alfonsecar <alfonsecar@gmail.com>
+Date:   Tue Dec 20 11:08:01 2022 +0100
+
+    20/12/2022
+
+[1mdiff --git a/.env b/.env[m
+[1mindex 54ff7689..da92b878 100644[m
+[1m--- a/.env[m
+[1m+++ b/.env[m
+[36m@@ -1,5 +1,7 @@[m
+[31m-PORT= 3002,[m
+[31m-USERNAME= alfonsecar,[m
+[32m+[m[32mSTAGE=dev[m
+[32m+[m
+[32m+[m
+[32m+[m[32mUSERNAME= alfonsecar[m
+ DB_PASSWORD=MiS3C3P4SSW0rdisS0C0mpl1ca4teD[m
+ DB_NAME=MileniumDB[m
+ DB_HOST=localhost[m
+[36m@@ -7,4 +9,7 @@[m [mDB_PORT=5432[m
+ DB_USERNAME=postgres[m
+ DATABASE=postgres[m
+ SYNCRONIZE=true[m
+[31m-JWT_SECRET_KEY=esto@es@1n4@cL4V3mUYDific1ld3av3r@gu4r[m
+\ No newline at end of file[m
+[32m+[m[32mJWT_SECRET_KEY=esto@es@1n4@cL4V3mUYDific1ld3av3r@gu4r[m
+[32m+[m
+[32m+[m[32mPORT= 3002[m
+[32m+[m[32mHOST_API = http://localhost:3002/api[m
+\ No newline at end of file[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex ed9335df..f684cb6e 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -12,6 +12,7 @@[m [mgit push -u origin main[m
+ lo primero que tenemos que hacer es configurar en el main.ts el cors, para que admita las peticiones desde el mismo dominio[m
+ [m
+ git init[m
+[32m+[m[32mgit add .[m
+ git commit -m "first commit"[m
+ git remote add origin https://github.com/antonioalfonsecaalonso/nest.git[m
+ git branch -M main[m
+[1mdiff --git a/package.json b/package.json[m
+[1mindex b1eedff6..51ac5957 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -5,11 +5,14 @@[m
+   "author": "",[m
+   "private": true,[m
+   "license": "UNLICENSED",[m
+[32m+[m[32m  "engines": {[m
+[32m+[m[32m    "node": "18.x"[m
+[32m+[m[32m  },[m
+   "scripts": {[m
+     "prebuild": "rimraf dist",[m
+     "build": "nest build",[m
+     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",[m
+[31m-    "start": "nest start",[m
+[32m+[m[32m    "start": "node dist/main",[m
+     "start:dev": "nest start --watch",[m
+     "start:debug": "nest start --debug --watch",[m
+     "start:prod": "node dist/main",[m
+[36m@@ -89,4 +92,4 @@[m
+     "coverageDirectory": "../coverage",[m
+     "testEnvironment": "node"[m
+   }[m
+[31m-}[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/app.module.ts b/src/app.module.ts[m
+[1mindex 6507d85b..8e330129 100644[m
+[1m--- a/src/app.module.ts[m
+[1m+++ b/src/app.module.ts[m
+[36m@@ -35,6 +35,14 @@[m [mimport { ProveedorModule } from './proveedores/proveedor.module';[m
+     }),[m
+ [m
+     TypeOrmModule.forRoot({[m
+[32m+[m[32m      ssl: process.env.STAGE === 'prod' ? true: false,[m
+[32m+[m[32m      extra: {[m
+[32m+[m[32m        ssl: process.env.STAGE === 'prod'[m[41m [m
+[32m+[m[32m          ? {[m
+[32m+[m[32m            rejectUnauthorized: false[m
+[32m+[m[32m          }[m
+[32m+[m[32m          : null[m
+[32m+[m[32m      },[m
+       type: 'postgres',[m
+       host: process.env.DB_HOST,[m
+       port: parseInt(process.env.DB_PORT),[m
+[1mdiff --git a/src/proveedores/dto/create-proveedor.dto.ts b/src/proveedores/dto/create-proveedor.dto.ts[m
+[1mindex fce96236..ed107618 100644[m
+[1m--- a/src/proveedores/dto/create-proveedor.dto.ts[m
+[1m+++ b/src/proveedores/dto/create-proveedor.dto.ts[m
+[36m@@ -1,6 +1,6 @@[m
+ /* eslint-disable prettier/prettier */[m
+ import { ApiProperty } from '@nestjs/swagger';[m
+[31m-import { IsBoolean, IsDate, IsDecimal, IsEmail, IsIBAN, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, isUUID, Max, MaxLength, Min, MinLength } from 'class-validator';[m
+[32m+[m[32mimport { IsBoolean, IsDate, IsDecimal, IsEmail, IsIBAN, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, isUUID, Max, MaxLength, Min, MinLength, Validate } from 'class-validator';[m
+ import { Timestamp } from 'typeorm';[m
+ import { errorCodeUser } from 'src/errors/errorCode';[m
+ import { User } from 'src/user/entities/user.entity';[m
+[1mdiff --git a/src/proveedores/entities/proveedor.entity.ts b/src/proveedores/entities/proveedor.entity.ts[m
+[1mindex f24b7217..e6428a11 100644[m
+[1m--- a/src/proveedores/entities/proveedor.entity.ts[m
+[1m+++ b/src/proveedores/entities/proveedor.entity.ts[m
+[36m@@ -12,8 +12,7 @@[m [mexport class Proveedor {[m
+   id: string;[m
+ [m
+   @Column('text', {[m
+[31m-    nullable: false,[m
+[31m-    unique: true[m
+[32m+[m[32m    nullable: false[m
+   })[m
+   denominacion: string; [m
+     [m
